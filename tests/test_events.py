@@ -12,9 +12,8 @@ class Event(pydantic.BaseModel):
     age: int
 
 
-@pytest.mark.asyncio
 async def test_simple_event(app):
-    async def welcome_email(event_name, event: Event): ...
+    async def welcome_email(event_name: str, event: Event): ...
 
     mocked_callback = create_autospec(welcome_email)
 
@@ -32,11 +31,10 @@ async def test_simple_event(app):
     mocked_callback.assert_called_with(event_name="user.created", event=ev)
 
 
-@pytest.mark.asyncio
 async def test_multiple_events(app):
-    async def welcome_email(event_name, event: Event): ...
+    async def welcome_email(event_name: str, event: Event): ...
 
-    async def register_analitics(event_name, event: Event): ...
+    async def register_analitics(event_name: str, event: Event): ...
 
     mocked_callback1 = create_autospec(welcome_email)
     mocked_callback2 = create_autospec(register_analitics)
@@ -57,9 +55,8 @@ async def test_multiple_events(app):
     mocked_callback2.assert_called_once_with(event_name="user.created", event=ev)
 
 
-@pytest.mark.asyncio
 async def test_retry_event(app):
-    async def welcome_email(event_name, event: Event): ...
+    async def welcome_email(event_name: str, event: Event): ...
 
     mocked_callback = create_autospec(welcome_email)
     mocked_callback.side_effect = [KeyError("foo"), None]
@@ -75,9 +72,8 @@ async def test_retry_event(app):
     assert mocked_callback.call_count == 2
 
 
-@pytest.mark.asyncio
 async def test_dlq_max_retries_event(app):
-    async def welcome_email(event_name, event: Event): ...
+    async def welcome_email(event_name: str, event: Event): ...
 
     retries = 3
     mocked_callback = create_autospec(welcome_email)
@@ -102,9 +98,8 @@ async def test_dlq_max_retries_event(app):
     assert mocked_callback.call_count == retries + 1
 
 
-@pytest.mark.asyncio
 async def test_dlq_wrong_cast_event(app):
-    async def welcome_email(event_name, event: Event): ...
+    async def welcome_email(event_name: str, event: Event): ...
 
     mocked_callback = create_autospec(welcome_email)
 

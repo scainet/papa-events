@@ -13,7 +13,6 @@ class Event(pydantic.BaseModel):
     age: int
 
 
-@pytest.mark.asyncio
 async def test_failover_event(rabbitmq_container, postgres_container):
     app = PapaApp(
         broker_uri=f"amqp://{rabbitmq_container.get_container_host_ip()}:{rabbitmq_container.get_exposed_port(5672)}",

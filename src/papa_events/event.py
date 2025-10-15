@@ -12,6 +12,7 @@ class CallBack:
     function: Callable
     param_name: str
     param_model: pydantic.BaseModel
+    event_name_param: str
 
 
 @dataclass

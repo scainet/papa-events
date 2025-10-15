@@ -63,13 +63,25 @@ class PapaApp:
             # Only allow one BaseModel instance for event
             if len(kws) != 1 or not issubclass(kws[0][1], pydantic.BaseModel):
                 raise PapaException("You need one pydantic.BaseModel function param")
-            has_name_param = any(True for name, parameter in sig.parameters.items() if name == "event_name")
-            # event_name is needed
-            if not has_name_param:
-                raise PapaException("You need one 'event_name' function param")
+
+            # Find event_name parameter by type (str) instead of by name
+            event_name_params = []
+            for name, parameter in sig.parameters.items():
+                if parameter.annotation is str:
+                    event_name_params.append(name)
+
+            if len(event_name_params) == 0:
+                raise PapaException("You need one string-typed parameter for event name")
+            elif len(event_name_params) > 1:
+                raise PapaException("You can only have one string-typed parameter for event name")
+
+            event_name_param = event_name_params[0]
+
             param_name, param_model = kws[0]
             if use_case_name not in self.use_cases:
-                callback_config = CallBack(function=func, param_name=param_name, param_model=param_model)
+                callback_config = CallBack(
+                    function=func, param_name=param_name, param_model=param_model, event_name_param=event_name_param
+                )
                 self.use_cases[use_case_name] = UseCase(
                     name=use_case_name,
                     callback=callback_config,
@@ -95,7 +107,7 @@ class PapaApp:
         try:
             kwargs = {
                 use_case.callback.param_name: use_case.callback.param_model.model_validate_json(message.body),
-                "event_name": message.routing_key,
+                use_case.callback.event_name_param: message.routing_key,
             }
         except pydantic.ValidationError:
             self.logger.exception(

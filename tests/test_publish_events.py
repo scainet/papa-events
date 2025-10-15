@@ -12,16 +12,15 @@ class Event(pydantic.BaseModel):
     age: int
 
 
-@pytest.mark.asyncio
 async def test_publish_event(app):
-    async def welcome_email(event_name, event: Event): ...
+    async def welcome_email(event_name: str, event: Event): ...
 
     class CustomEvent(BaseModel):
         user: int
 
     ev2 = CustomEvent(user=999)
 
-    async def activate_account(event_name, event: CustomEvent): ...
+    async def activate_account(event_name: str, event: CustomEvent): ...
 
     mocked_callback = create_autospec(welcome_email)
     mocked_callback.return_value = [
@@ -47,14 +46,13 @@ async def test_publish_event(app):
     assert mocked_callback2.call_count == 2
 
 
-@pytest.mark.asyncio
 async def test_publish_event_no_object(app):
-    async def welcome_email(event_name, event: Event): ...
+    async def welcome_email(event_name: str, event: Event): ...
 
     class CustomEvent(BaseModel):
         user: int
 
-    async def activate_account(event_name, event: CustomEvent): ...
+    async def activate_account(event_name: str, event: CustomEvent): ...
 
     mocked_callback = create_autospec(welcome_email)
     mocked_callback.return_value = [
@@ -84,14 +82,13 @@ async def test_publish_event_no_object(app):
     assert mocked_callback2.call_count == 0
 
 
-@pytest.mark.asyncio
 async def test_publish_event_no_jsonable(app):
-    async def welcome_email(event_name, event: Event): ...
+    async def welcome_email(event_name: str, event: Event): ...
 
     class CustomEvent(BaseModel):
         user: int
 
-    async def activate_account(event_name, event: CustomEvent): ...
+    async def activate_account(event_name: str, event: CustomEvent): ...
 
     class NOJSONABLE: ...
 
