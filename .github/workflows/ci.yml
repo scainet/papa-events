@@ -33,7 +33,7 @@ jobs:
 
     - name: Run ty type checker
       run: |
-        uvx ruff format --check
+        uvx ty check
 
     - name: Run tests
       run: |
