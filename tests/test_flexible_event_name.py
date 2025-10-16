@@ -58,11 +58,20 @@ async def test_multiple_string_params_error(app):
         app.on_event(["user.created"], "test_multiple_strings_use_case")(callback_with_multiple_strings)
 
 
-async def test_no_string_param_error(app):
-    """Test that no string parameter causes an error"""
+async def test_no_string_param_works(app):
+    """Test that no string parameter works correctly"""
     
     async def callback_without_string_param(event: Event):
         pass
 
-    with pytest.raises(Exception, match=r"You need one string-typed parameter for event name"):
-        app.on_event(["user.created"], "test_no_string_use_case")(callback_without_string_param)
+    mocked_callback = create_autospec(callback_without_string_param)
+
+    app.on_event(["user.created"], "test_no_string_use_case")(mocked_callback)
+
+    await app.start()
+    ev = Event(name="test user", age=30)
+    await app.new_event("user.created", ev)
+    await asyncio.sleep(2)
+    await app.stop()
+
+    mocked_callback.assert_awaited_once_with(event=ev)

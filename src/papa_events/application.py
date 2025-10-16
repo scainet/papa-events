@@ -70,12 +70,11 @@ class PapaApp:
                 if parameter.annotation is str:
                     event_name_params.append(name)
 
-            if len(event_name_params) == 0:
-                raise PapaException("You need one string-typed parameter for event name")
-            elif len(event_name_params) > 1:
+            event_name_param = None
+            if len(event_name_params) > 1:
                 raise PapaException("You can only have one string-typed parameter for event name")
-
-            event_name_param = event_name_params[0]
+            elif len(event_name_params) == 1:
+                event_name_param = event_name_params[0]
 
             param_name, param_model = kws[0]
             if use_case_name not in self.use_cases:
@@ -107,8 +106,9 @@ class PapaApp:
         try:
             kwargs = {
                 use_case.callback.param_name: use_case.callback.param_model.model_validate_json(message.body),
-                use_case.callback.event_name_param: message.routing_key,
             }
+            if use_case.callback.event_name_param is not None:
+                kwargs[use_case.callback.event_name_param] = message.routing_key
         except pydantic.ValidationError:
             self.logger.exception(
                 f"DLQ: The model for {use_case.name} do not validate for incoming message <{message.message_id}>"
