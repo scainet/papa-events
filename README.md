@@ -149,7 +149,7 @@ The system creates dedicated queues for each use case. Events are automatically 
 2. **Queue Binding**: Event is routed to relevant use case queues
 3. **Processing**: Handler processes the event
 4. **Success**: Event is acknowledged and removed from queue
-5. **Failure**: Event is sent to retry queue with exponential backoff
+5. **Failure**: Event is sent to retry queue with fixed delay
 6. **Max Retries Exceeded**: Event is moved to Dead Letter Queue (DLQ)
 
 ### Queue Structure
@@ -164,7 +164,7 @@ The system creates dedicated queues for each use case. Events are automatically 
 
 Events that fail processing are automatically retried with configurable limits. The retry mechanism includes:
 
-- Exponential backoff between retries
+- Fixed delay between retries (configurable via `timeout` setting)
 - Configurable maximum retry attempts
 - Automatic dead letter queue routing after max retries
 
