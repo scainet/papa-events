@@ -121,3 +121,21 @@ async def test_dlq_wrong_cast_event(app):
     assert isinstance(message, aio_pika.IncomingMessage)
     assert "pydantic_core._pydantic_core.ValidationError" in message.headers["exception"]
     assert mocked_callback.call_count == 0
+
+
+async def test_event_without_event_name_param(app):
+    async def welcome_email(event: Event): ...
+
+    mocked_callback = create_autospec(welcome_email)
+
+    app.on_event(["user.created"], "test_event_without_event_name_param_use_case")(mocked_callback)
+
+    await app.start()
+    ev = Event(name="test name", age=25)
+    await app.new_event("user.created", ev.model_dump_json().encode())
+    await asyncio.sleep(2)
+    await app.stop()
+
+    mocked_callback.assert_awaited()
+    assert mocked_callback.call_count == 1
+    mocked_callback.assert_called_with(event=ev)
