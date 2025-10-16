@@ -164,7 +164,7 @@ The system creates dedicated queues for each use case. Events are automatically 
 
 Events that fail processing are automatically retried with configurable limits. The retry mechanism includes:
 
-- Fixed delay between retries (configurable via `timeout` setting)
+- Fixed delay between retries (configurable via `papa_events_timeout` setting)
 - Configurable maximum retry attempts
 - Automatic dead letter queue routing after max retries
 
